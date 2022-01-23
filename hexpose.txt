@@ -1,0 +1,361 @@
+
+                          H e x p o s u r e v0.45b
+
+                       by SnowBro <kentmhan@online.no>
+
+
+--------+---------+
+        | Updates |
+        +---------+
+
+        v0.45b
+
+        - Documentation improved a whole lot.
+        - A couple of characters were missing from the example
+          font table for CV2; fixed.
+
+        v0.44b (Released 02/26/99):
+
+        - Fixed an ugly bug that had crept into the relative
+          searcher, causing it to crash if it didn't find any
+          results! Waaahh! (This bug was only present in v0.43b.)
+        - Ability to build font table based on results of a relative
+          search. Hexposure will ask you if you want it to build the
+          font table or not.
+        - Ability to save the current font table as a .TBL file.
+          (Useful if you've used the relative searcher to find the
+          font values.)
+        - Relative searcher sped up. It can now find a 16-byte string
+          at the end of a 1 MB file in one second (on my Pentium 75).
+
+        v0.43b (Released 02/25/99):
+
+        - Wow!! Another update today! :)
+        - Script format changed. It now handles line breaks, section
+          breaks and string breaks. (If you've defined the correct
+          values in the .TBL, of course.) This improves the readability
+          of the script greatly.
+        - As already mentioned, you can now define a value for section
+          breaks in the .TBL. See "Font tables" section in the
+          documentation for syntax.
+        - Improved the documentation a bit.
+
+        v0.42b (Released 02/25/99):
+
+        - Script inserter. So far only works for non-DTE scripts.
+          The script format will most likely have to be changed to
+          assure that scripts with DTE in them are reinserted
+          correctly.
+        - Added a DTE enable/disable switch to the Options menu.
+          By default, DTE support is enabled. When the ROM you're
+          editing doesn't have DTE, just ignore this switch. It's
+          only useful when editing ROMs which in addition to the
+          DTE table has a separate font table (without DTE) that's
+          used elsewhere in the game.
+        - Fixed minor bugs and other things.
+
+        v0.400000001b (Released 02/23/99):
+
+        - Fixed bug that caused the font table-loader to crash if you
+          didn't press enter after the last entry in the .TBL file
+          (Win9X Notepad-specific).
+
+        v0.40b (Released 02/23/99):
+
+        - Program rewritten!!!
+        - Table format changed
+        - DTE support
+        - Script dumper
+        - Relative searcher
+
+
+--------+-----------------+
+        | General editing |
+        +-----------------+
+
+        I assume you're already familiar with using hex/text editors, so
+        I won't insult your intelligence by explaining how to move around
+        in a file.
+
+        You can toggle between hex and text editing by pressing TAB. When
+        in hex mode, 2-digit hexadecimal values can be entered. In text
+        mode, the characters can be typed directly.
+
+
+--------+----------------------+
+        | Searching for values |
+        +----------------------+
+
+        Three types of ultra-fast search methods can be employed:
+
+                - Text search (F2)
+
+                        Lets you search for a character string. The
+                        search string can be up to 16 characters long.
+                        Currently it defaults to searching for non-DTE
+                        strings, but I'll add a DTE-switch in the next
+                        version.
+
+                - Hex search (F4)
+
+                        Lets you search for a hexadecimal string. The
+                        search string can be up to 16 bytes long (32
+                        digits). Note that the string must be an even
+                        number of digits.
+
+                - Relative search (F6)
+
+                        Search based on difference between character
+                        values. This is useful if you're unsure of the
+                        actual character values a ROM uses.
+
+                - Search again (F3)
+
+                        Searches for the same string again, but does not
+                        reset the file position.
+
+
+--------+-------------+
+        | Font tables |
+        +-------------+
+
+        If you're already familiar with the concept of using font
+        tables to view and edit text, you may skip down to the .TBL
+        format section. If you've never modified text in a ROM before,
+        be sure to read this first.
+
+        In any type of file containing text, regardless of console or
+        platform, the text data is stored as numbers in binary form.
+        Each character of the alphabet, both upper and lower case, has
+        a unique value. In addition to the alphabet there are also
+        various types of punctuation, such as !, ?, : and ". A word
+        processor (such as the one you're using to view this text)
+        simply sends these values to the display, namely the screen,
+        in the order they appear in the file. The binary data is
+        thereby magically transformed from just a sequence of numbers
+        to actual readable text.
+
+        To ensure that all text data in PC files could be recognized
+        by all programs which need to process them, and produce the
+        same output, the binary values for the alphabet and punctuation
+        had to be standardized. The characters were defined in a table
+        called ASCII, which is the character set all (english) PCs use
+        today. In this table, "A" has the value 41h (hexadecimal), "B"
+        is 42h, "C" is 43h ... and "Z" is 5Ah. Likewise, the lower case
+        alphabet starts with 61h ("a") and ends with 7Ah ("z"). The
+        alphabet is only one part of the ASCII font table, which has a
+        total of 256 entries. Some of these entries aren't characters
+        at all, but so-called "control codes", which perform actions
+        such as breaking to the next line.
+
+        But here comes the problem: While PCs use this font table, not
+        all other platforms do! In the case of a console system such as
+        the NES, the programmer is basically free to assign each character
+        any value they want. The character values depend on where the font
+        data is stored in the NES' graphics memory, and the control codes
+        depend on the program code, since the programmers have to develop
+        their own text displaying routines. Therefore there's no reason
+        to follow the ASCII standard in such a case, and most of the
+        console developers don't.
+
+        This is the reason why you are able to read the text in a game
+        when playing it on an emulator or on a real console, while the
+        same text is seemingly nowhere to be found when you view the ROM
+        in a "standard" hex editor.
+
+        OK, time for an example. Consider the word "cafe" stored as ASCII
+        values. The hexadecimal string equivalent is:
+
+                                63 61 66 65
+                                c  a  f  e
+
+        (This is because the lower case alphabet starts at 61h in the
+        ASCII table, as mentioned above.) Now, assume that in the ROM
+        you're editing, the alphabet doesn't start at 61h, but at 00h.
+        The hexadecimal string would then be:
+
+                                02 00 05 04
+                                c  a  f  e
+
+        As you can see, the text is the same, but the hexadecimal values
+        are different. Since hex editors normally only support ASCII
+        values, when you search for the word "cafe" it will search for
+        63 61 66 65, NOT 02 00 05 04, and that's not what you want in
+        this case.
+
+        This is where Hexposure kicks into effect. It allows you to
+        import a table containing the correct values for each character
+        in the ROM you are editing, so that you can search for the text,
+        view the text and edit the text. The list of characters and
+        corresponding character values must be located in a font table
+        file, and an explanation of its format follows.
+
+
+--------+--------------------------+
+        | Finding character values |
+        +--------------------------+
+
+        The easiest way to find the character values for a certain ROM
+        is to use the relative searcher (F6). In case you don't know
+        what a relative searcher is, here's a short explanation.
+
+        No matter what the value of the first letter of the alphabet in
+        a character set is, you always know the values of the rest of the
+        characters relative to that value, because you know in which order
+        the letters appear in the alphabet (I hope). For example, if "a"
+        is 00h, you can assume that "b" is 01h, "c" is 02h and so on
+        (unless the character set is really messed up). Let's compare
+        the two different versions of the word "cafe" I gave you above:
+
+        ASCII:          63 61 66 65
+        Imaginary ROM:  02 00 05 04
+
+        Notice if you subtract 61h from each value in the ASCII hex
+        string, you end up with the string from the ROM? Well, that's
+        relativity for ya. :-) Let's subtract each value in each string
+        from the next value, and see what we get:
+
+        ASCII                   Imaginary ROM
+        63 - 61 = 02            02 - 00 = 02
+        61 - 66 = -05           00 - 05 = -05
+        66 - 65 = 01            05 - 04 = 01
+
+        Tada. You see that the ONLY thing that separates the two strings
+        is that in the ASCII font table, the lower case alphabet starts
+        at 61h, while in the imaginary ROM, it starts at 00h. Relatively
+        speaking, the two strings match exactly.
+
+        The relative searcher lets you enter any word (in either lower
+        or upper case letters, but not both mixed together), and then
+        uses the method explained above to attempt to locate that word,
+        regardless of specific character values. So the only thing you
+        need to do is take a word you know exists in the ROM you want
+        to edit, and search for it with the relative searcher. Unless
+        the game uses some sort of text compression, it will produce
+        the results you want, and in addition Hexposure will ask you if
+        you want to build a font table based on the result right away.
+        You have to figure out the punctuation values and other stuff
+        which the relative searcher can't pick up yourself, but that's
+        usually easy once you can see all the words. Press F9 to save
+        the table to a .TBL file and make the necessary additions.
+
+
+--------+-------------------+
+        | Font table format |
+        +-------------------+
+
+        Hexposure associates files with corresponding font table files,
+        with the extension .TBL. If you load the file "GAME.NES",
+        Hexposure will look for "GAME.TBL" in the same directory. If no
+        font table is found, the standard ASCII table will be used.
+
+        The .TBL file contains character value definitions of the
+        following format:
+
+        00=A
+        01=B
+        23=th
+        AC= e
+
+        In addition, you can define certain control bytes:
+
+        "*" specifies LineBreak
+        "\" Specifies SectionBreak
+        "/" specifies StringBreak
+
+        For example:
+
+        *=FD            <-- Lines terminated by FD
+        \=FE            <-- Sections terminated by FE
+        /=FF            <-- Strings terminated by FF
+
+        If a NewLine value has been specified, you can press enter when
+        editing text to call that character, instead of having to change
+        to hex mode and enter the value manually.
+
+        Hexposure assumes your .TBL files are of the proper format, so
+        make sure they are. Check the .TBLs contained in the Hexposure
+        .ZIP for some examples. If you're using DOS Edit, be careful
+        when defining spaces ( ). If you press enter at the end of the
+        line, spaces will be destroyed!!
+
+
+--------+--------------------+
+        | Script dumper (F7) |
+        +--------------------+
+
+        This lets you dump the data between two hex offsets in the ROM
+        to a file. It's fast too; takes about 3 seconds to dump a 1 MB
+        ROM on my Pentium 75.
+
+        Hex values which are not defined in the font table are dumped as
+        <$XX>, where XX is the hex value.
+
+        Line breaks do the same in the script as they do in the game:
+        break to the next line. For example:
+
+        SnowBro worries         <-- Line break after "worries"
+        about you.
+
+        Section breaks skip an extra line to separate the current text
+        section from the next one. For example:
+
+        This is getting boring.
+        Time for a section break.
+                                <-- Section break
+        Ahh, much better...
+
+        And finally, a string break (end of string) looks like this:
+
+        Time to end
+        this string.<END>       <-- String break
+
+        In addition, the string break also skips an extra line down to
+        separate the current string from the next one. Remember to
+        ALWAYS put an <END> marker at the end of your strings.
+
+
+--------+----------------------+
+        | Script inserter (F8) |
+        +----------------------+
+
+        Lets you insert the script dumped with the Script dumper back
+        into the ROM. Make sure the modified script is still of a
+        valid format; check the format description above if you're
+        having problems. You will have to recalculate the string
+        pointers for the text data yourself.
+
+        Note that you can't insert script dumps from games which use
+        DTE... yet.
+
+
+--------+------+
+        | Keys |
+        +------+
+
+        TAB     -       Toggle between hex/text editing
+        ESC     -       Bring up menu
+        F1      -       Go to offset
+        F2      -       Search for text string
+        F3      -       Search again
+        F4      -       Search for hex string
+        F5      -       Save changes
+        F6      -       Relative search
+        F7      -       Script dumper
+        F8      -       Script inserter
+        F9      -       Save font table
+        Ctrl-L  -       File selector
+        Ctrl-Q  -       Quit
+
+
+--------+----------+
+        | Epilogue |
+        +----------+
+
+        If you have anything to say at all about this program, good or
+        bad, please tell it to me. The latest version of Hexposure can
+        always be obtained from my webpage,
+
+        http://home.sol.no/~kenhanse/nes
+
+        KH'99
